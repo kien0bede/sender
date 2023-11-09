@@ -8,6 +8,8 @@ void CB_Init();
 
 void CB_Yeild();
 
+void CB_BUTTON();
+
 void CB_IRQ_HID_DataOut(uint8_t *buf);
 
 void CB_IRQ_Handler(IRQn_Type irq);
