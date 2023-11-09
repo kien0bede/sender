@@ -20,13 +20,12 @@ static IRQn_Type g_MobizV2_IrqList[1] = { EXTI4_15_IRQn };
 
 /* Refer to power_mgr.h to know how to provide test point specs */
 static TestPointSpec g_testPointSpecs[] = {
-
-	TEST_POINT_SPEC(0, "VSYS_1V8", ADC_INPUT_3, ADC_CHANNEL_3, false, false, 1.2f, 0.6f, 1.8f, 0.1f, 0.15),
-	TEST_POINT_SPEC(1, "VDD_ARM", ADC_INPUT_4, ADC_CHANNEL_4, false, false, 1.2f, 0.6f, 1.4f, 0.05f, -0.08),
-	TEST_POINT_SPEC(2, "DCDC_3V3", ADC_INPUT_5, ADC_CHANNEL_5, true, false, 3.3f, 0.6f, 3.3f, 0.15f, 0.08),
-	TEST_POINT_SPEC(3, "PMIC_ON_REQ", ADC_INPUT_6, ADC_CHANNEL_6, true, false, 3.3f, 0.3f, 3.3f, 0.15f, 0.08),
-	TEST_POINT_SPEC(4, "VDD_DRAM", ADC_INPUT_7, ADC_CHANNEL_7, false, false, 1.2f, 0.3f, 1.35f, 0.05f, -0.12),
-	TEST_POINT_SPEC(5, "LS_3V3", ADC_INPUT_8, ADC_CHANNEL_8, true, false, 3.3f, 0.6f, 3.3f, 0.15f, 0.08),
+	TEST_POINT_SPEC(3, "VSYS_1V8", ADC_INPUT_3, ADC_CHANNEL_3, false, false, 1.2f, 0.6f, 1.8f, 0.1f, 0.15),
+	TEST_POINT_SPEC(4, "VDD_ARM", ADC_INPUT_4, ADC_CHANNEL_4, false, false, 1.2f, 0.6f, 1.4f, 0.05f, -0.1),
+	TEST_POINT_SPEC(5, "DCDC_3V3", ADC_INPUT_5, ADC_CHANNEL_5, true, false, 3.3f, 0.6f, 3.3f, 0.15f, 0.08),
+	TEST_POINT_SPEC(6, "PMIC_ON_REQ", ADC_INPUT_6, ADC_CHANNEL_6, true, false, 3.3f, 0.3f, 3.3f, 0.15f, 0.08),
+	TEST_POINT_SPEC(7, "VDD_DRAM", ADC_INPUT_7, ADC_CHANNEL_7, false, false, 1.2f, 0.3f, 1.35f, 0.05f, -0.15),
+	TEST_POINT_SPEC(8, "LS_3V3", ADC_INPUT_8, ADC_CHANNEL_8, true, false, 3.3f, 0.6f, 3.3f, 0.15f, 0.08),
 };
 
 static void MobizV2_Init()

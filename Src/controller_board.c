@@ -123,10 +123,6 @@ void CB_BUTTON() {
 			short_press_triggered = 0;
 		}
 		if ((HAL_GetTick() - press_start_time) >= PRESS_INTERVAL) {
-			LED_STT_G_SET;
-			HAL_Delay(1000);
-			LED_STT_G_RESET;
-			HAL_Delay(1000);
 			if (g_opMode < OPMODE_NUM - 1)
 			{
 				CB_SwitchOperationMode(g_opMode + 1);
@@ -135,16 +131,20 @@ void CB_BUTTON() {
 			{
 				CB_SwitchOperationMode(OPMODE_INVALID + 1);
 			}
+			LED_STT_G_SET;
+			HAL_Delay(1000);
+			LED_STT_G_RESET;
+			HAL_Delay(10);
 			btn_pressed = 0;
 		}
 	} else {
 		if (btn_pressed) {
 			if (!short_press_triggered) {
+				CB_QaCheck();
 				LED_STT_B_SET;
 				HAL_Delay(1000);
 				LED_STT_B_RESET;
-				HAL_Delay(1000);
-				CB_QaCheck();
+				HAL_Delay(10);
 				short_press_triggered = 1;
 			}
 		}

@@ -35,7 +35,7 @@ void Error_Handler(void);
 void SystemClock_Config(void);
 
 static void I2C1_Init(void);
-static void ADC1_Init(void);
+static void ADC_Init(void);
 static void LED_Init(void); // Must call before I2C1_Init
 
 I2C_HandleTypeDef hi2c1;
@@ -58,7 +58,7 @@ int main(void)
 
 	I2C1_Init();
 	LED_Init();
-	ADC1_Init();
+	ADC_Init();
 	MX_USB_DEVICE_Init();
 
 	/* Initialize buzzer engine */
@@ -154,55 +154,57 @@ static void I2C1_Init(void)
 	}
 }
 
-static void ADC1_Init(void)
+static void ADC_Init(void)
 {
-    ADC_ChannelConfTypeDef sConfig = {0};
+	ADC_ChannelConfTypeDef sConfig = {0};
 
-    hadc.Instance = ADC1;
-    hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
-    hadc.Init.Resolution = ADC_RESOLUTION_12B;
-    hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-    hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
-    hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
-    hadc.Init.LowPowerAutoWait = DISABLE;
-    hadc.Init.LowPowerAutoPowerOff = DISABLE;
-    hadc.Init.ContinuousConvMode = ENABLE;
-    hadc.Init.DiscontinuousConvMode = DISABLE;
-    hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-    hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc.Init.DMAContinuousRequests = DISABLE;
-    hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
+	hadc.Instance = ADC1;
+	hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
+	hadc.Init.Resolution = ADC_RESOLUTION_12B;
+	hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+	hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
+	hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+	hadc.Init.LowPowerAutoWait = DISABLE;
+	hadc.Init.LowPowerAutoPowerOff = DISABLE;
+	hadc.Init.ContinuousConvMode = ENABLE;
+	hadc.Init.DiscontinuousConvMode = DISABLE;
+	hadc.Init.ExternalTrigConv = ADC_SOFTWARE_START;
+	hadc.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+	hadc.Init.DMAContinuousRequests = DISABLE;
+	hadc.Init.Overrun = ADC_OVR_DATA_PRESERVED;
 
-    if (HAL_ADC_Init(&hadc) != HAL_OK)
-    {
-        Error_Handler();
-    }
+	if (HAL_ADC_Init(&hadc) != HAL_OK)
+	{
+		Error_Handler();
+	}
 
-    sConfig.Channel = ADC_CHANNEL_VREFINT;
-    sConfig.Rank = 1;
-    sConfig.SamplingTime = CONFIG_ADC_SAMPLE_TIME;
+	HAL_ADCEx_Calibration_Start(&hadc);
+	HAL_Delay(10);
 
-    const uint16_t VREFIN_CAL = *((uint16_t*)0x1FFFF7BA);
+	sConfig.Channel = ADC_CHANNEL_VREFINT;
+	sConfig.Rank = 1;
+	sConfig.SamplingTime = CONFIG_ADC_SAMPLE_TIME;
 
-    if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
+	const uint16_t VREFIN_CAL = *((uint16_t*)0x1FFFF7BA);
 
-    HAL_ADC_Start(&hadc);
+	if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+	{
+		Error_Handler();
+	}
 
-    if (HAL_ADC_PollForConversion(&hadc, 500) == HAL_OK)
-    {
-        uint32_t val = HAL_ADC_GetValue(&hadc);
-        uint32_t vdda = (3300UL * (uint32_t)VREFIN_CAL) / val;
-        PM_SetVDDA(vdda / 1000.0f);
-    }
+	HAL_ADC_Start_IT(&hadc);
 
-    sConfig.Rank = ADC_RANK_NONE;
-    HAL_ADC_ConfigChannel(&hadc, &sConfig);
+	if (HAL_ADC_PollForConversion(&hadc, 500) == HAL_OK)
+	{
+		uint32_t val = HAL_ADC_GetValue(&hadc);
+		uint32_t vdda = (3300UL * (uint32_t)VREFIN_CAL) / val;
+		PM_SetVDDA(vdda / 1000.0f);
+	}
 
-    HAL_ADC_Stop(&hadc);
+	sConfig.Rank = ADC_RANK_NONE;
+	HAL_ADC_ConfigChannel(&hadc, &sConfig);
 }
+
 
 
 static void LED_Init(void)

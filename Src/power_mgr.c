@@ -33,6 +33,9 @@ bool PM_ReadVoltage(const TestPointSpec *spec, float *val, bool raw)
 	bool success = false;
 	ADC_ChannelConfTypeDef channelConf;
 
+	HAL_ADC_Stop(&hadc);
+	HAL_ADCEx_Calibration_Start(&hadc);
+
 	channelConf.Rank = 1;
 	channelConf.SamplingTime = CONFIG_ADC_SAMPLE_TIME;
 	channelConf.Channel = spec->adcChannel;
@@ -42,7 +45,7 @@ bool PM_ReadVoltage(const TestPointSpec *spec, float *val, bool raw)
 		return false;
 	}
 
-	HAL_ADC_Start(&hadc);
+	HAL_ADC_Start_IT(&hadc);
 	HAL_StatusTypeDef rc = HAL_ADC_PollForConversion(&hadc, 500);
 
 	if (rc == HAL_OK)
@@ -50,20 +53,17 @@ bool PM_ReadVoltage(const TestPointSpec *spec, float *val, bool raw)
 		uint32_t res = HAL_ADC_GetValue(&hadc);
 
 		#if CONFIG_CALIB_MODE == 1
-				COM_Trace("Raw %s=%d", spec->name, res);
+			COM_Trace("Raw %s=%d", spec->name, res);
 		#endif
 
-		if (!raw && spec->isHalf)
-		{
+		if (!raw && spec->isHalf) {
 			*val = (float)res * gAdcResolution * 2;
 		}
-		else
-		{
+		else {
 			*val = (float)res * gAdcResolution;
 		}
 	}
-	else
-	{
+	else {
 		goto out;
 	}
 
@@ -72,8 +72,7 @@ bool PM_ReadVoltage(const TestPointSpec *spec, float *val, bool raw)
 out:
 	channelConf.Rank = ADC_RANK_NONE;
 	HAL_ADC_ConfigChannel(&hadc, &channelConf);
-	HAL_ADC_Stop(&hadc);
-	HAL_Delay(1000);
+	HAL_Delay(10);
 
 	return success;
 }
@@ -203,6 +202,7 @@ PowerStatus PM_SetDevicePower(bool on)
 		{
 			COM_Trace("Powered up");
 			HAL_GPIO_WritePin(PWR_EN_Pin.port, PWR_EN_Pin.pin, GPIO_PIN_SET);
+
 		}
 		else
 		{
