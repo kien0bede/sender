@@ -24,7 +24,7 @@ static volatile OperationMode g_stagingMode = OPMODE_INVALID;
 static uint8_t g_gndDetectFlags;
 static uint8_t g_lastGndDetectFlags;
 static uint8_t btn_pressed = 0;
-static uint32_t press_start_time = 0;
+static uint32_t press_time = 0;
 static uint8_t short_press_triggered = 0;
 static uint32_t g_deadlineToPowerDevice;
 static uint32_t g_deadlineToRunQaCheck;
@@ -118,11 +118,11 @@ void CB_Yeild()
 void CB_BUTTON() {
 	if (HAL_GPIO_ReadPin(GPIOA, GPIO_PIN_0) == GPIO_PIN_RESET) {
 		if (!btn_pressed) {
-			press_start_time = HAL_GetTick();
+			press_time = HAL_GetTick();
 			btn_pressed = 1;
 			short_press_triggered = 0;
 		}
-		if ((HAL_GetTick() - press_start_time) >= PRESS_INTERVAL) {
+		if ((HAL_GetTick() - press_time) >= PRESS_INTERVAL) {
 			if (g_opMode < OPMODE_NUM - 1)
 			{
 				CB_SwitchOperationMode(g_opMode + 1);
@@ -349,7 +349,6 @@ static void EnterNewMode(OperationMode mode)
 	AdapterBoard *adapter = GetAdapterBoard();
 	adapter->EnterNewMode(mode);
 }
-
 
 static void AutoModeProcess(bool gndDetectChanged)
 {
